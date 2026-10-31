@@ -1,0 +1,42 @@
+name: Replace Domain pump.co.id to pumps.id
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rename-domain-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  replace-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Domain Replacement & Head Injection
+        run: python .github/scripts/replace_domain.py
+
+      - name: Commit and push changes
+        env:
+          TARGET_REF: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+          git commit -m "chore(domain): rename all instances of pump.co.id to pumps.id [skip ci]"
+          git push origin "HEAD:${TARGET_REF}"
