@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /cdn-cgi/
 
-Sitemap: https://pump.co.id/sitemap.xml
+Sitemap: https://pumps.id/sitemap.xml
